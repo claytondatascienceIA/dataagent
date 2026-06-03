@@ -167,20 +167,23 @@ elif pagina=="📊  Dashboard":
     c1,c2=st.columns(2)
     with c1:
         st.markdown("#### Receita por produto")
-        r = run_sql("SELECT produto, SUM(receita) as total FROM vendas GROUP BY produto ORDER BY total DESC")
-        prods = r.iloc[:, 0].tolist()
-        vals_r = r.iloc[:, 1].tolist()
+        cur = conn.cursor()
+        cur.execute("SELECT produto, SUM(receita) FROM vendas GROUP BY produto ORDER BY SUM(receita) DESC")
+        rows = cur.fetchall()
+        prods = [r[0] for r in rows]
+        vals_r = [r[1]/1e6 for r in rows]
         fig,ax=plt.subplots(figsize=(6,4.5))
-        bars=ax.barh(prods[::-1],[v/1e6 for v in vals_r[::-1]],color=P1,edgecolor="none",height=0.6)
-        for bar,v in zip(bars,[v/1e6 for v in vals_r[::-1]]):
+        bars=ax.barh(prods[::-1],vals_r[::-1],color=P1,edgecolor="none",height=0.6)
+        for bar,v in zip(bars,vals_r[::-1]):
             ax.text(v+0.01,bar.get_y()+bar.get_height()/2,f"R${v:.1f}M",va="center",fontsize=9,color=P3,fontweight="bold")
-        ax.set_xlabel("Receita (R$ milhões)",color="#9b7fd4"); ax.set_xlim(0,max(vals_r)/1e6*1.25)
+        ax.set_xlabel("Receita (R$ milhões)",color="#9b7fd4"); ax.set_xlim(0,max(vals_r)*1.25)
         fig_style(fig,ax); st.pyplot(fig); plt.close()
     with c2:
         st.markdown("#### Receita por região")
-        r = run_sql("SELECT regiao, SUM(receita) as total FROM vendas GROUP BY regiao ORDER BY total DESC")
-        regioes = r.iloc[:, 0].tolist()
-        vals_r2 = [v/1e6 for v in r.iloc[:, 1].tolist()]
+        cur.execute("SELECT regiao, SUM(receita) FROM vendas GROUP BY regiao ORDER BY SUM(receita) DESC")
+        rows2 = cur.fetchall()
+        regioes = [r[0] for r in rows2]
+        vals_r2 = [r[1]/1e6 for r in rows2]
         fig,ax=plt.subplots(figsize=(6,4.5))
         colors_reg=["#8B5CF6","#7C3AED","#6D28D9","#5B21B6","#4C1D95"]
         bars=ax.bar(regioes,vals_r2,color=colors_reg[:len(regioes)],edgecolor="none",width=0.6)
