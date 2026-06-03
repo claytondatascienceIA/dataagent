@@ -167,7 +167,9 @@ elif pagina=="📊  Dashboard":
     c1,c2=st.columns(2)
     with c1:
         st.markdown("#### Receita por produto")
-        cur = conn.cursor()
+        _conn = sqlite3.connect(":memory:")
+        df.to_sql("vendas", _conn, index=False, if_exists="replace")
+        cur = _conn.cursor()
         cur.execute("SELECT produto, SUM(receita) FROM vendas GROUP BY produto ORDER BY SUM(receita) DESC")
         rows = cur.fetchall()
         prods = [r[0] for r in rows]
