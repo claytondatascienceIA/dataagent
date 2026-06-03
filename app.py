@@ -167,22 +167,24 @@ elif pagina=="📊  Dashboard":
     c1,c2=st.columns(2)
     with c1:
         st.markdown("#### Receita por produto")
-        r=run_sql("SELECT produto, SUM(receita) as receita FROM vendas GROUP BY produto ORDER BY receita DESC")
+        r=run_sql("SELECT produto, SUM(receita) as total_receita FROM vendas GROUP BY produto ORDER BY total_receita DESC")
+        col_r=r.columns[1]  # pega nome real da coluna
         fig,ax=plt.subplots(figsize=(6,4.5))
-        bars=ax.barh(r["produto"][::-1],r["receita"][::-1]/1e6,color=P1,edgecolor="none",height=0.6)
-        for bar,v in zip(bars,r["receita"][::-1]/1e6):
+        bars=ax.barh(r["produto"][::-1],r[col_r][::-1]/1e6,color=P1,edgecolor="none",height=0.6)
+        for bar,v in zip(bars,r[col_r][::-1]/1e6):
             ax.text(v+0.01,bar.get_y()+bar.get_height()/2,f"R${v:.1f}M",va="center",fontsize=9,color=P3,fontweight="bold")
-        ax.set_xlabel("Receita (R$ milhões)",color="#9b7fd4"); ax.set_xlim(0,max(r["receita"]/1e6)*1.25)
+        ax.set_xlabel("Receita (R$ milhões)",color="#9b7fd4"); ax.set_xlim(0,max(r[col_r]/1e6)*1.25)
         fig_style(fig,ax); st.pyplot(fig); plt.close()
     with c2:
         st.markdown("#### Receita por região")
-        r=run_sql("SELECT regiao, SUM(receita) as receita FROM vendas GROUP BY regiao ORDER BY receita DESC")
+        r=run_sql("SELECT regiao, SUM(receita) as total_receita FROM vendas GROUP BY regiao ORDER BY total_receita DESC")
+        col_r=r.columns[1]
         fig,ax=plt.subplots(figsize=(6,4.5))
         colors_reg=["#8B5CF6","#7C3AED","#6D28D9","#5B21B6","#4C1D95"]
-        bars=ax.bar(r["regiao"],r["receita"]/1e6,color=colors_reg[:len(r)],edgecolor="none",width=0.6)
-        for bar,v in zip(bars,r["receita"]/1e6):
+        bars=ax.bar(r["regiao"],r[col_r]/1e6,color=colors_reg[:len(r)],edgecolor="none",width=0.6)
+        for bar,v in zip(bars,r[col_r]/1e6):
             ax.text(bar.get_x()+bar.get_width()/2,bar.get_height()+0.02,f"R${v:.1f}M",ha="center",fontsize=9,color=P3,fontweight="bold")
-        ax.set_ylabel("Receita (R$ milhões)",color="#9b7fd4"); ax.set_ylim(0,max(r["receita"]/1e6)*1.2)
+        ax.set_ylabel("Receita (R$ milhões)",color="#9b7fd4"); ax.set_ylim(0,max(r[col_r]/1e6)*1.2)
         ax.tick_params(labelrotation=20); fig_style(fig,ax); st.pyplot(fig); plt.close()
 
 elif pagina=="💾  Dados":
